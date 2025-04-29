@@ -54,6 +54,7 @@ def parse_args():
         '  "%s" -- Explore UI using a greedy depth-first strategy;\n'
         '  "%s" -- Explore UI using a naive breadth-first strategy;\n'
         '  "%s" -- Explore UI using a greedy breadth-first strategy;\n'
+        '  "%s" -- Explore UI using random input;\n'
         % (
             input_policy.POLICY_NONE,
             input_policy.POLICY_MONKEY,
@@ -61,6 +62,7 @@ def parse_args():
             input_policy.POLICY_GREEDY_DFS,
             input_policy.POLICY_NAIVE_BFS,
             input_policy.POLICY_GREEDY_BFS,
+            input_policy.POLICY_RANDOM
         ),
     )
 
