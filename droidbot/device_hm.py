@@ -541,7 +541,7 @@ class DeviceHM(Device):
         """
         Sends drag event n PX (actually it's using C{input swipe} command.
         """
-        self.hdc.drag(start_xy, end_xy, duration)
+        self.hdc.drag(start_xy, end_xy)
 
     def view_append_text(self, text):
         if self.droidbot_ime.connected:

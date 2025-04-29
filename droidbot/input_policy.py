@@ -40,6 +40,7 @@ POLICY_GREEDY_BFS = "bfs_greedy"
 POLICY_REPLAY = "replay"
 POLICY_MANUAL = "manual"
 POLICY_MONKEY = "monkey"
+POLICY_RANDOM = "random"
 POLICY_NONE = "none"
 POLICY_MEMORY_GUIDED = "memory_guided"  # implemented in input_policy2
 POLICY_LLM_GUIDED = "llm_guided"  # implemented in input_policy3
@@ -207,6 +208,35 @@ class UtgBasedInputPolicy(InputPolicy):
         :return: InputEvent
         """
         pass
+
+
+class RandomPolicy(UtgBasedInputPolicy):
+    def __init__(self, device, app, random_input):
+        super().__init__(device, app, random_input)
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def generate_event_based_on_utg(self):
+        """
+        generate an event
+        @return:
+        """
+        if not self.device.is_foreground(self.app):
+            start_app_intent = self.app.get_start_intent()
+            return IntentEvent(start_app_intent)
+
+        self.from_state = self.device.get_current_state()
+        current_state = self.from_state
+        if current_state is None:
+            time.sleep(5)
+            return KeyEvent(name="BACK")
+
+        self.logger.debug("Current state: %s" % current_state.state_str)
+
+        possible_events = current_state.get_possible_input()
+        possible_events.append(KeyEvent(name="Back"))
+        event = random.choice(possible_events)
+        self.last_event = event
+        return event
 
 
 class UtgNaiveSearchPolicy(UtgBasedInputPolicy):

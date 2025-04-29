@@ -77,11 +77,9 @@ class HmClient:
                 continue
             except (socket.timeout, UnicodeDecodeError) as e:
                 logger.warning(e)
-                if decode:
-                    full_msg = ""
-                break
+                return "" if decode else b""
 
-        return full_msg.decode() if decode else full_msg
+        return full_msg.decode() if decode and full_msg else full_msg
 
     def invoke(
         self, api: str, this: str = "Driver#0", args: typing.List = []

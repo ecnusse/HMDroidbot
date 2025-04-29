@@ -4,13 +4,14 @@ import subprocess
 import time
 
 from .input_event import EventLog
-from .input_policy import UtgBasedInputPolicy, UtgNaiveSearchPolicy, UtgGreedySearchPolicy, \
-                         UtgReplayPolicy, \
-                         ManualPolicy, \
-                         POLICY_NAIVE_DFS, POLICY_GREEDY_DFS, \
-                         POLICY_NAIVE_BFS, POLICY_GREEDY_BFS, \
-                         POLICY_REPLAY, POLICY_MEMORY_GUIDED, POLICY_LLM_GUIDED, \
-                         POLICY_MANUAL, POLICY_MONKEY, POLICY_NONE
+from .input_policy import (
+    UtgBasedInputPolicy, UtgNaiveSearchPolicy, UtgGreedySearchPolicy,
+    UtgReplayPolicy, ManualPolicy, RandomPolicy,
+    POLICY_NAIVE_DFS, POLICY_GREEDY_DFS,
+    POLICY_NAIVE_BFS, POLICY_GREEDY_BFS,
+    POLICY_REPLAY, POLICY_MEMORY_GUIDED, POLICY_LLM_GUIDED,
+    POLICY_MANUAL, POLICY_MONKEY, POLICY_NONE, POLICY_RANDOM
+)
 
 DEFAULT_POLICY = POLICY_GREEDY_DFS
 DEFAULT_EVENT_INTERVAL = 1
@@ -71,6 +72,8 @@ class InputManager(object):
             input_policy = None
         elif self.policy_name == POLICY_MONKEY:
             input_policy = None
+        elif self.policy_name == POLICY_RANDOM:
+            input_policy = RandomPolicy(device, app, self.random_input)
         elif self.policy_name in [POLICY_NAIVE_DFS, POLICY_NAIVE_BFS]:
             input_policy = UtgNaiveSearchPolicy(device, app, self.random_input, self.policy_name)
         elif self.policy_name in [POLICY_GREEDY_DFS, POLICY_GREEDY_BFS]:

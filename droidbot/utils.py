@@ -109,16 +109,26 @@ def load_yml_args(opts, config_dict):
     for key, value in config_dict.items():
         if key.lower() == "system" and value:
             opts.is_harmonyos = value.lower() == "harmonyos"
+            continue
         elif key.lower() == "app_path" and value:
             opts.apk_path = value
+            continue
         elif key.lower() == "policy" and value:
             opts.input_policy = value
+            continue
         elif key.lower() == "output_dir" and value:
             opts.output_dir = value
+            continue
         elif key.lower() == "count" and value:
             opts.count = value
+            continue
         elif key.lower() in ["target", "device", "device_serial"] and value:
             opts.device_serial = value
+            continue
+        
+        if key.lower() != "env":
+            setattr(opts, key, value)
+        
 
 
 def deprecated(reason):
@@ -178,8 +188,13 @@ def identify_device_serial(options):
 def check_package(opts):
     if not hasattr(opts, "apk_path"):
         print("App package not provided")
+        
+    if not str(opts.apk_path).endswith(".hap"):
+        print(f"[Warning] The given app {opts.apk_path} is probably a package name.")
+        return
+    
     if os.getcwd() not in opts.apk_path:
         opts.apk_path = os.path.join(os.getcwd(), opts.apk_path)
+        
     if not os.path.exists(opts.apk_path):
-        print(f"App '{opts.apk_path}' does not exist.")
-        return
+        raise RuntimeError(f"App '{opts.apk_path}' does not exist.")

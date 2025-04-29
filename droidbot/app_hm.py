@@ -25,7 +25,7 @@ class AppHM(object):
         """
         # assert app_path is not None
         self.logger = logging.getLogger(self.__class__.__name__)
-        
+
         self.app_path = app_path
 
         self.output_dir = output_dir
@@ -33,8 +33,42 @@ class AppHM(object):
             if not os.path.isdir(output_dir):
                 os.makedirs(output_dir)
 
-        self.parse_hap()
-    
+        if str(app_path).endswith(".hap"):
+            self._hap_init()
+        else:
+            self._package_init(package_name=app_path)
+
+    def _package_init(self, package_name):
+        self.package_name = package_name
+        package_info = self._dumpsys_package_info
+
+        self.main_activity = package_info["hapModuleInfos"][0]["mainAbility"]
+        
+        all_modules = package_info["hapModuleInfos"]
+        all_abilityInfos = []
+        for m in all_modules:
+            all_abilityInfos.extend(m["abilityInfos"])
+        self.activities = [info["name"] for info in all_abilityInfos]
+        self.total_activities = len(self.activities)
+        self.hashes = ["", "", ""]
+        pass
+
+    @property
+    def _dumpsys_package_info(self):
+        from .adapter.hdc import HDC_EXEC
+        cmd = [HDC_EXEC, "-t", self.device_serial, "shell", "bm", "dump", "-a",]
+        r = subprocess.check_output(cmd, text=True)
+        installed_packages = [_.strip() for _ in r.split() if not _.startswith("ID")]
+        if self.package_name not in installed_packages:
+            raise RuntimeError(f"{self.package_name} not installed on device.")
+
+        cmd = [HDC_EXEC, "-t", self.device_serial, "shell", "bm", "dump", "-n", self.package_name]
+        r = subprocess.check_output(cmd, text=True)
+        package_info_str = r.split("\n", maxsplit=1)[-1]
+        import json
+        package_info = json.loads(package_info_str)
+        return package_info
+
     def __str__(self) -> str:
         app_info = ", ".join([
             f"bundleName:{self.package_name}",
@@ -43,7 +77,7 @@ class AppHM(object):
         ])
         return f"App({app_info})"
 
-    def parse_hap(self):
+    def _hap_init(self):
         self.logger.info(f"Extracting info from {self.app_path}")
         self.logger.info(f"Hapfile is {os.path.basename(self.app_path)}")
         # make temp dir
@@ -52,13 +86,13 @@ class AppHM(object):
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
         os.mkdir(temp_dir)
-        
+
         with zipfile.ZipFile(self.app_path, 'r') as zip_ref:
             zip_ref.extractall(temp_dir)
-        
+
         with open(temp_dir + "/module.json") as f:
             moudle_json = json.load(f)
-        
+
         with open(temp_dir + "/pack.info") as f:
             pack_info = json.load(f)
 

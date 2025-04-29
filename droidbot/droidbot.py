@@ -156,6 +156,7 @@ class DroidBot(object):
                     ignore_ad=ignore_ad,
                     is_harmonyos=self.is_harmonyos,
                     save_log=self.save_log)
+                AppHM.device_serial = device_serial
                 self.app = AppHM(app_path, output_dir=self.output_dir)
 
                 self.env_manager = AppEnvManager(

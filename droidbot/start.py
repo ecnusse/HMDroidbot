@@ -40,12 +40,7 @@ def parse_args():
     parser.add_argument(
         "-o", action="store", dest="output_dir", help="directory of output"
     )
-    # parser.add_argument("-env", action="store", dest="env_policy",
-    #                     help="policy to set up environment. Supported policies:\n"
-    #                          "none\tno environment will be set. App will run in default environment of device; \n"
-    #                          "dummy\tadd some fake contacts, SMS log, call log; \n"
-    #                          "static\tset environment based on static analysis result; \n"
-    #                          "<file>\tget environment policy from a json file.\n")
+
     parser.add_argument(
         "-policy",
         action="store",
